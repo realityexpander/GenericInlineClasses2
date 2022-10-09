@@ -1,8 +1,13 @@
+import javafx.application.Application.launch
+import kotlinx.coroutines.*
+
 sealed class Vehicle
 data class Car(val make: String, val model: String) : Vehicle()
 data class Truck(val make: String, val model: String, val towingCapacity: Int) : Vehicle()
 
 data class Kebab(val meat: String, val vegetables: List<String>)  // note: not a vehicle
+
+/// Example 1 (unconstrained) ////////////////////////////////////////////
 
 @JvmInline
 value class HighQualityUnconstrainedType(val thing: Any) // Problem is that harder to use with a specific subtype (must check at runtime)
@@ -19,6 +24,8 @@ fun inspectHQVehicleUnconstrained(pleasePassOnlyVehicle: HighQualityUnconstraine
         is Truck -> println("Unconstrained Truck: ${vehicle.make} ${vehicle.model} ${vehicle.towingCapacity}")
     }
 }
+
+/// Example 2 (constrained) ///////////////////////////////////////////
 
 @JvmInline
 value class HighQualityConstrainedType<T>(val thing: T)
@@ -48,7 +55,7 @@ fun main() {
     try {
         inspectHQVehicleUnconstrained(carHQUnconstrained)     // Car: Toyota Corolla
         inspectHQVehicleUnconstrained(truckHQUnconstrained)   // Truck: Ford F150 1000
-        inspectHQVehicleUnconstrained(kebabHQUnconstrained)   // IllegalArgumentException: Not a vehicle
+        inspectHQVehicleUnconstrained(kebabHQUnconstrained)   // Runtime -> IllegalArgumentException: Not a vehicle
     } catch (e: IllegalArgumentException) {
         println("Error: ${e.message}")
     }
@@ -58,7 +65,7 @@ fun main() {
     // Using the HighQualityConstrainedType
     inspectHQVehicleConstrained(HighQualityConstrainedType(car))     // Car: Toyota Corolla
     inspectHQVehicleConstrained(HighQualityConstrainedType(truck))   // Truck: Ford F150 1000
-    //inspectHQVehicleConstrained(HighQualityConstrainedType(kebab))   // Gives error at compile time (not a vehicle)
-}
+    //inspectHQVehicleConstrained(HighQualityConstrainedType(kebab)) // Gives error at compile time (not a vehicle)
 
+}
 
